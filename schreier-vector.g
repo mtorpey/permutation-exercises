@@ -39,3 +39,9 @@ SchreierMultiplier := function(v, a)
   od;
   return elm;
 end;
+
+
+
+a_to_b := function(v, a, b)
+  return SchreierMultiplier(v, a)^-1 * SchreierMultiplier(v, b);
+end;
