@@ -32,6 +32,22 @@ end;
 
 
 
+StabiliserChain := function(G)
+  local non_trivial_elm, pt, r;
+  # Input: a perm group (with generators)
+  # Output: a record
+  non_trivial_elm := First(GeneratorsOfGroup(G), g-> not IsEmpty(MovedPoints(g)));
+  if non_trivial_elm = fail then
+    return rec(gens := []);
+  fi;
+  pt := MovedPoints(non_trivial_elm)[1];
+  r := OrbitStabiliserMT(G, pt);
+  r.stab := StabiliserChain(r.stab);
+  return r;
+end;
+
+
+
 SchreierMultiplier := function(v, a)
   local gens, pos, elm, g;
   # Input: Schreier vector and int
