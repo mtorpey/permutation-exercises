@@ -48,18 +48,17 @@ end;
 
 
 
-SchreierMultiplier := function(v, a)
-  local gens, pos, elm, g;
+SchreierVectorCosetRep := function(v, a)
+  local pos, elm, g;
   # Input: Schreier vector and int
-  # Output: a perm (one that maps the first elm in orbit to a)
-  gens := GeneratorsOfGroup(v.group);
-  if not a in v.orb then
+  # Output: a perm (one that maps orb[1] to a)
+  pos := Position(v.orb, a);
+  if pos = fail then
     return fail;
   fi;
-  pos := Position(v.orb, a);
   elm := ();
   while v.schreier[pos] <> 0 do
-    g := gens[v.schreier[pos]];
+    g := v.gens[v.schreier[pos]];
     elm := g * elm;
     pos := Position(v.orb, v.orb[pos] ^ (g^-1));
   od;
@@ -68,6 +67,28 @@ end;
 
 
 
+FactoriseIntoReps := function(sc, g)
+  local L, rep;
+  # Input: Schreier vector (i.e. stab chain) and perm
+  # Output: a list of perms (their product equals g)
+  L := [];
+  while not IsEmpty(sc.gens) do
+    rep := SchreierVectorCosetRep(sc, sc.orb[1] ^ g);
+    if rep = fail then
+      return fail;
+    fi;
+    Add(L, rep);
+    g := g * rep^-1;
+    sc := sc.stab;
+  od;
+  if g <> () then
+    return fail;
+  fi;
+  return Reversed(L);
+end;
+
+
+
 a_to_b := function(v, a, b)
-  return SchreierMultiplier(v, a)^-1 * SchreierMultiplier(v, b);
+  return SchreierVectorCosetRep(v, a)^-1 * SchreierVectorCosetRep(v, b);
 end;
